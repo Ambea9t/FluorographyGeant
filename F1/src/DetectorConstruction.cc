@@ -30,12 +30,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   //
   // World
   //
-  G4double world_size = 1.1*env_size;
   G4Material* AIR = nist->FindOrBuildMaterial("G4_AIR");
   G4Material* Al = nist->FindOrBuildMaterial("G4_Al");
 
   auto solidWorld = new G4Box("World",                           // its name
-    0.5 * world_size, 0.5 * world_size, 0.7 * world_size);  // its size
+    0.5 * env_size, 0.5 * env_size, 0.7 * env_size);  // its size
 
   auto logicWorld = new G4LogicalVolume(solidWorld,  // its solid
     AIR,                                       // its material
@@ -54,14 +53,14 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   // Envelope
   //
   auto solidEnv = new G4Box("Envelope",                    // its name
-    0.5 * env_size, 0.5 * env_size, 0.2 * env_size);  // its size
+    0.5 * env_size, 0.5 * env_size, 0.23 * env_size);  // its size
 
   auto logicEnv = new G4LogicalVolume(solidEnv,  // its solid
     muscle,                                     // its material
     "Envelope");                                 // its name
 
   new G4PVPlacement(nullptr,  // no rotation
-    G4ThreeVector(),          // at (0,0,0)
+    G4ThreeVector(0,0,0.6* env_size),          
     logicEnv,                 // its logical volume
     "Envelope",               // its name
     logicWorld,               // its mother  volume
@@ -78,9 +77,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
    LUNG_and_AIR->AddMaterial(LUNG, 98.2*perCent);
    LUNG_and_AIR->AddMaterial(AIR, 1.8*perCent);
    
-  G4ThreeVector pos1 = G4ThreeVector( 0.21 * env_size, 0, 0);
-  G4ThreeVector pos2 = G4ThreeVector( -0.21 * env_size, 0, 0);
-  G4ThreeVector pos3 = G4ThreeVector( 0, 0, -0.3* env_size);
+  G4ThreeVector pos1 = G4ThreeVector( 0.22 * env_size, 0, 0* env_size);
+  G4ThreeVector pos2 = G4ThreeVector( -0.22 * env_size, 0, 0* env_size);
+  G4ThreeVector pos3 = G4ThreeVector( 0, 0, -0.6* env_size);
 
   // Lung
   auto solidShape = new G4Ellipsoid("Shape",  // its name
@@ -114,7 +113,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   // Set Shape as scoring volume
   
   auto Solid_Al = new G4Box("Al_Shape",                           // its name
-    0.5 * world_size, 0.5 * world_size, 0.5* mm);  // its size
+    0.5 * env_size, 0.5 * env_size, 0.5* mm);  // its size
 
   auto logic_Al = new G4LogicalVolume(Solid_Al,  // its solid
     Al,                                       // its material

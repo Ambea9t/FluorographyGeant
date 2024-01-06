@@ -27,14 +27,35 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   G4String particleName;
   G4ParticleDefinition* particle = particleTable->FindParticle(particleName="gamma");
   fParticleGun->SetParticleDefinition(particle);
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
+  G4double envSizeZ = 0;
+
+  if (!fEnvelopeBox)
+  {
+    G4LogicalVolume* envLV
+      = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
+    if ( envLV ) fEnvelopeBox = dynamic_cast<G4Box*>(envLV->GetSolid());
+  }
+
+  if ( fEnvelopeBox ) {
+    envSizeZ = fEnvelopeBox->GetZHalfLength()*2.;
+  }
+  else  {
+    G4ExceptionDescription msg;
+    msg << "Envelope volume of box shape not found.\n";
+    msg << "Perhaps you have changed geometry.\n";
+    msg << "The gun will be place at the center.";
+    G4Exception("PrimaryGeneratorAction::GeneratePrimaries()",
+     "MyCode0002",JustWarning,msg);
+  }
+  fParticleGun->SetParticlePosition(G4ThreeVector(0,0,-0.5 * envSizeZ));
+  
 //  std::map<G4double, G4double>::iterator ew
 //    {
 //        std::pair<std::G4double, G4double>{0.0, 20}, std::pair{0.1, 80}, std::pair{0.2, 60}, std::pair{0.3, 30}, std::pair{0.5, 70}, std::pair{0.8, 80}, std::pair{0.9, 90}, std::pair{1.0, 100}
 //    };
 //  G4double rand = G4UniformRand();
 //  std::map<G4double, G4double>::iterator it = ew->lower_bound(rand);
-  fParticleGun->SetParticleEnergy(50* keV);
+  fParticleGun->SetParticleEnergy(80* keV);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -48,42 +69,25 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-  //this function is called at the begining of ecah event
+  
+   G4double alphaMin =  0*deg;      
+  G4double alphaMax = 35*deg;
+  G4double fCosAlphaMin = std::cos(alphaMin);
+  G4double fCosAlphaMax = std::cos(alphaMax);
+  
+  G4double fPsiMin = 0*deg;       
+  G4double fPsiMax = 360*deg;
+  //direction uniform in solid angle
   //
+  G4double cosAlpha = fCosAlphaMin-G4UniformRand()*(fCosAlphaMin-fCosAlphaMax);
+  G4double sinAlpha = std::sqrt(1. - cosAlpha*cosAlpha);
+  G4double psi = fPsiMin + G4UniformRand()*(fPsiMax - fPsiMin);
 
-  // In order to avoid dependence of PrimaryGeneratorAction
-  // on DetectorConstruction class we get Envelope volume
-  // from G4LogicalVolumeStore.
+  G4double ux = sinAlpha*std::cos(psi),
+           uy = sinAlpha*std::sin(psi),
+           uz = cosAlpha;
 
-  G4double envSizeXY = 0;
-  G4double envSizeZ = 0;
-
-  if (!fEnvelopeBox)
-  {
-    G4LogicalVolume* envLV
-      = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
-    if ( envLV ) fEnvelopeBox = dynamic_cast<G4Box*>(envLV->GetSolid());
-  }
-
-  if ( fEnvelopeBox ) {
-    envSizeXY = fEnvelopeBox->GetXHalfLength()*2.;
-    envSizeZ = fEnvelopeBox->GetZHalfLength()*2.;
-  }
-  else  {
-    G4ExceptionDescription msg;
-    msg << "Envelope volume of box shape not found.\n";
-    msg << "Perhaps you have changed geometry.\n";
-    msg << "The gun will be place at the center.";
-    G4Exception("PrimaryGeneratorAction::GeneratePrimaries()",
-     "MyCode0002",JustWarning,msg);
-  }
-
-  G4double size = 0.8;
-  G4double x0 = size * envSizeXY * (G4UniformRand()-0.5);
-  G4double y0 = size * envSizeXY * (G4UniformRand()-0.5);
-  G4double z0 = -0.5 * envSizeZ;
-
-  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(ux,uy,uz));
 
   fParticleGun->GeneratePrimaryVertex(anEvent);
 }
