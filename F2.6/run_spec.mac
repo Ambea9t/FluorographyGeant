@@ -1,0 +1,52 @@
+
+/run/initialize
+#
+/gps/particle gamma
+
+# source
+/gps/pos/type Volume
+/gps/pos/shape Sphere
+/gps/pos/centre 0. 0. -85. cm
+/gps/pos/radius 2. mm
+#/gps/direction 0. 0. -1.
+
+# angular distribution
+
+/gps/ang/type iso
+/gps/ang/maxtheta 10 deg
+#/gps/ang/rot1 0 0 1
+/gps/ang/rot1 -1 0 0
+/gps/ang/rot2 0 1 0
+
+
+# energy distribution
+/gps/ene/type Arb
+/gps/ene/diffspec 0
+/gps/hist/type arb
+/gps/hist/point 20.0 0.006
+/gps/hist/point 25.0 0.03
+/gps/hist/point 30.0 0.064
+/gps/hist/point 35.0 0.097
+/gps/hist/point 40.0 0.112
+/gps/hist/point 45.0 0.108
+/gps/hist/point 50.0 0.105
+/gps/hist/point 55.0 0.097
+/gps/hist/point 60.0 0.131
+/gps/hist/point 65.0 0.064
+/gps/hist/point 70.0 0.08
+/gps/hist/point 75.0 0.041
+/gps/hist/point 80.0 0.032
+/gps/hist/point 85.0 0.017
+/gps/hist/point 90.0 0.009
+/gps/hist/point 95.0 0.004
+/gps/hist/point 100.0 0.0
+/gps/hist/inter Lin
+
+# commands below are independent of gps
+#
+#
+#/control/execute vis.mac
+#
+/run/printProgress 20000
+#
+/run/beamOn 20000

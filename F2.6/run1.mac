@@ -1,0 +1,59 @@
+########################################
+#
+# define scoring mesh
+#
+/score/create/boxMesh boxMesh_1
+#
+/score/mesh/boxSize 24. 24. 11.04 cm
+/score/mesh/translate/xyz 0. 0. 76.8 cm
+/score/mesh/nBin 30 30 30
+#
+/score/quantity/energyDeposit eDep
+/score/quantity/nOfStep nOfStepGamma
+/score/filter/particle gammaFilter gamma
+
+#
+/score/close
+#
+/score/list
+#
+########################################
+#
+/vis/disable
+/control/verbose 2
+/run/verbose 1
+#######/event/verbose 1
+#######/tracking/verbose 1
+#######/vis/verbose confirmations
+
+#/gun/particle gamma
+#/run/beamOn 1000
+/control/execute run_spec.mac
+/vis/enable
+#
+########################################
+#
+# drawing projections
+#
+/score/drawProjection boxMesh_1 eDep
+/score/drawProjection boxMesh_1 nOfStepGamma
+
+#
+########################################
+#
+# drawing slices
+#
+# new scene and viewer
+/vis/open OGL
+/vis/drawVolume world
+/vis/viewer/copyViewFrom viewer-0
+/score/colorMap/setMinMax ! 0. 800.
+#/control/loop drawSlice.mac iColumn 0 29 7
+#
+########################################
+#
+# Dump scorers to a file
+#
+#/score/dumpQuantityToFile boxMesh_1 nOfStepGamma nOfStepGamma.txt
+#
+#
